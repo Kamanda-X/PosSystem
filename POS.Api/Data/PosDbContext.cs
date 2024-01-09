@@ -20,6 +20,8 @@ namespace POS.Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Order>().HasOne(o => o.Reservation).WithOne(r => r.Order).HasForeignKey<Reservation>(r => r.OrderId);
+            modelBuilder.Entity<Table>().HasOne(o => o.Reservation).WithOne(r => r.Table).HasForeignKey<Reservation>(r => r.TableId);
             base.OnModelCreating(modelBuilder);
         }
     }
