@@ -48,6 +48,27 @@ namespace POS.Api.Data.Migrations
                 nullable: true);
 
             migrationBuilder.CreateTable(
+                name: "Service",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Service", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Service_AspNetUsers_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TimeSlot",
                 columns: table => new
                 {
@@ -59,12 +80,28 @@ namespace POS.Api.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TimeSlot", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimeSlot_Service_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "Service",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reservation_TimeSlotId",
                 table: "Reservation",
                 column: "TimeSlotId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Service_EmployeeId",
+                table: "Service",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeSlot_ServiceId",
+                table: "TimeSlot",
+                column: "ServiceId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Reservation_Table_TableId",
@@ -94,6 +131,9 @@ namespace POS.Api.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "TimeSlot");
+
+            migrationBuilder.DropTable(
+                name: "Service");
 
             migrationBuilder.DropIndex(
                 name: "IX_Reservation_TimeSlotId",

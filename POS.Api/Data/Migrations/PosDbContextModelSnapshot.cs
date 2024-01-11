@@ -450,6 +450,36 @@ namespace POS.Api.Data.Migrations
                     b.ToTable("Reservation");
                 });
 
+            modelBuilder.Entity("POS.Api.Models.Service", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Service");
+                });
+
             modelBuilder.Entity("POS.Api.Models.Table", b =>
                 {
                     b.Property<Guid>("Id")
@@ -488,6 +518,8 @@ namespace POS.Api.Data.Migrations
                         .HasColumnType("time");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServiceId");
 
                     b.ToTable("TimeSlot");
                 });
@@ -623,6 +655,17 @@ namespace POS.Api.Data.Migrations
                     b.Navigation("TimeSlot");
                 });
 
+            modelBuilder.Entity("POS.Api.Models.Service", b =>
+                {
+                    b.HasOne("POS.Api.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("POS.Api.Models.Table", b =>
                 {
                     b.HasOne("POS.Api.Models.Order", "Order")
@@ -632,6 +675,17 @@ namespace POS.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("POS.Api.Models.TimeSlot", b =>
+                {
+                    b.HasOne("POS.Api.Models.Service", "Service")
+                        .WithMany("TimeSlots")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("POS.Api.Models.Customer", b =>
@@ -668,6 +722,11 @@ namespace POS.Api.Data.Migrations
                 {
                     b.Navigation("Order")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("POS.Api.Models.Service", b =>
+                {
+                    b.Navigation("TimeSlots");
                 });
 
             modelBuilder.Entity("POS.Api.Models.Table", b =>

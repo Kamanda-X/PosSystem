@@ -10,6 +10,8 @@
 
         public TimeOnly End { get; set; }
 
+        public virtual Service Service { get; set; }
+
         public ICollection<Reservation> Reservations { get; set; }
     }
 }
