@@ -1,4 +1,6 @@
-﻿namespace POS.Api.Models.DTOs.Reservation
+﻿using POS.Api.Models.DTOs.TimeSlot;
+
+namespace POS.Api.Models.DTOs.Reservation
 {
     public class ReservationResponse
     {
@@ -6,7 +8,7 @@
 
         public Guid? TableId { get; set; }
 
-        public Guid? TimeSlotId { get; set; }
+        public ListItemTimeSlotResponse? TimeSlot { get; set; }
 
         public DateTime Start { get; set; }
 

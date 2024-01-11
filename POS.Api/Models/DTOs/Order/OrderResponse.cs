@@ -2,26 +2,31 @@
 
 namespace POS.Api.Models.DTOs.Order
 {
-    public class OrderDto
+    public class OrderResponse
     {
         public Guid Id { get; init; }
 
-        [ForeignKey("Employee")]
+    
         public string EmployeeId { get; set; } = null!;
 
-        [ForeignKey("Payment")]
         public Guid? PaymentId { get; set; }
 
-        [ForeignKey("Discount")]
+
         public Guid? DiscountId { get; set; }
 
-        [ForeignKey("Customer")]
+
         public Guid? CustomerId { get; set; }
+
 
         public OrderStatus Status { get; set; }
 
         public DateTimeOffset Date { get; set; }
 
         public float? Amount { get; set; }
+
+        public float TipAmount { get; set; }
+
+        public Guid? ReservationId { get; set; }
+
     }
 }

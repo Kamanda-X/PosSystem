@@ -60,7 +60,23 @@ namespace POS.Api.Controllers
                 {
                     return BadRequest();
                 }
-                return Ok(reservation);
+
+                var timeSlot = await _context.Set<TimeSlot>().Where(r => r.Id == request.TimeSlotId).FirstOrDefaultAsync();
+                var response = new ReservationResponse()
+                {
+                    Id = reservation.Id,
+                    TimeSlot = new Models.DTOs.TimeSlot.ListItemTimeSlotResponse
+                    {
+                        Id = timeSlot.Id,
+                        Start = timeSlot.Start,
+                        End = timeSlot.End,
+                    },
+                    TableId = reservation.TableId,
+                    Start = reservation.Start,
+                    End = reservation.End,
+                };
+
+                return Ok(response);
             }
         }
 
@@ -156,7 +172,20 @@ namespace POS.Api.Controllers
             _context.Add(order);
             await _context.SaveChangesAsync();
 
-            return Ok(order.Id);
+            var response = new OrderResponse
+            {
+                Id = order.Id,
+                Amount = order.Amount,
+                ReservationId= order.ReservationId,
+                EmployeeId = order.EmployeeId,
+                DiscountId = order.DiscountId,
+                PaymentId = order.PaymentId,
+                CustomerId = order.CustomerId,
+                Status = order.Status,
+                Date = order.Date,
+            };
+
+            return Ok(response);
         }
     }
 }
