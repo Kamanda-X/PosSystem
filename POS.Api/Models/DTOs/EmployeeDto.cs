@@ -4,6 +4,8 @@ namespace POS.Api.Models.DTOs
 {
     public class EmployeeDto
     {
+        public Guid Id { get; set; }
+
         public string UserName { get; set; } = null!;
 
         public string FirstName { get; set; } = null!;
