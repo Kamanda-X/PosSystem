@@ -21,5 +21,7 @@ namespace POS.Api.Models.DTOs.Order
         public OrderStatus Status { get; set; }
 
         public DateTimeOffset Date { get; set; }
+
+        public float? Amount { get; set; }
     }
 }

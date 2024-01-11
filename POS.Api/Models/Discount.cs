@@ -1,11 +1,5 @@
 ﻿namespace POS.Api.Models
 {
-    public enum DiscountStatus
-    {
-        Unused,
-        Used,
-        Special
-    }
 
     public class Discount
     {
@@ -19,8 +13,6 @@
         public DateTimeOffset EndDate { get; set; }
 
         public string Description { get; set; } = null!;
-
-        public DiscountStatus Status { get; set; }
 
         public virtual ICollection<Order>? Orders { get; set; }
     }

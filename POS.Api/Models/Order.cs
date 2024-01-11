@@ -14,6 +14,12 @@ namespace POS.Api.Models
 
     public class Order
     {
+        public Order()
+        {
+            OrderItems = new List<OrderItem>();
+        }
+
+
         public Guid Id { get; init; }
 
         [ForeignKey("Employee")]
@@ -39,7 +45,13 @@ namespace POS.Api.Models
 
         public DateTimeOffset Date { get; set; }
 
-        public virtual ICollection<OrderItem>? OrderItems { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
+
+        public float? Amount { get; set; }
+
+        public float TipAmount { get; set; }
+
+        public Guid? ReservationId { get; set; }
 
         public virtual Reservation? Reservation { get; set; }
     }

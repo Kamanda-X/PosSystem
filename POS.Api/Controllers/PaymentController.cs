@@ -5,6 +5,7 @@ using POS.Api.Models;
 using POS.Api.Models.DTOs.Payment;
 using Microsoft.EntityFrameworkCore;
 using Azure.Core;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace POS.Api.Controllers
 {
@@ -14,59 +15,6 @@ namespace POS.Api.Controllers
         {
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(CreatePaymentDto request)
-        {
-            var order = await _context.Set<Order>().Where(c => c.Id == request.OrderId).FirstOrDefaultAsync();
-
-            if (order is null)
-            {
-                return BadRequest();
-            }
-
-            var payment = new Payment()
-            {
-                Amount = request.Amount,
-                Type = request.Type,
-                TaxRate = request.TaxRate,
-                TipAmount = request.TipAmount,
-                Date = request.Date,
-                CardNumber = request.CardNumber,
-            };
-
-            _context.Add(payment);
-
-            var result = await _context.SaveChangesAsync();
-
-            if (result == 0)
-            {
-                return BadRequest();
-            }
-
-            return Ok(payment);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update(UpdatePaymentDto request)
-        {
-            var payment = await _context.Set<Payment>().Where(c => c.Id == request.Id).FirstOrDefaultAsync();
-
-            if (payment is null)
-            {
-                return BadRequest();
-            }
-
-            payment.Amount = request.Amount;
-            payment.Type = request.Type;
-            payment.TaxRate = request.TaxRate;
-            payment.TipAmount = request.TipAmount;
-            payment.Date = request.Date;
-            payment.CardNumber = request.CardNumber;
-
-            _context.Update(payment);
-            var result = await _context.SaveChangesAsync();
-            return Ok(payment);
-        }
 
         [HttpGet("/api/[controller]/{id}")]
         public async Task<IActionResult> GetById(Guid id)
@@ -78,15 +26,16 @@ namespace POS.Api.Controllers
                 return BadRequest();
             }
 
-            var response = new PaymentDto()
+            var response = new ProcessPaymentResponse()
             {
                 Id = payment.Id,
-                Amount = payment.Amount,
-                Type = payment.Type,
+                Sum = payment.Sum,
+                AmountPaid = payment.AmountPaid,
+                Change = payment.Change,
                 TaxRate = payment.TaxRate,
-                TipAmount = payment.TipAmount,
                 Date = payment.Date,
-                CardNumber = payment.CardNumber,
+                Discount = payment.Discount,
+                Total = payment.Sum * (1 + payment.TaxRate / 100 - payment.Discount / 100)
             };
 
             return Ok(response);
@@ -95,15 +44,16 @@ namespace POS.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var payments = await _context.Set<Payment>().Select(e => new PaymentDto()
+            var payments = await _context.Set<Payment>().Select(e => new ProcessPaymentResponse()
             {
                 Id = e.Id,
-                Amount = e.Amount,
-                Type = e.Type,
+                Sum = e.Sum,
+                AmountPaid = e.AmountPaid,
+                Change = e.Change,
                 TaxRate = e.TaxRate,
-                TipAmount = e.TipAmount,
                 Date = e.Date,
-                CardNumber = e.CardNumber,
+                Discount = e.Discount,
+                Total = e.Sum * (1 + e.TaxRate / 100 - e.Discount / 100)
             }).ToListAsync();
 
             return Ok(payments);
@@ -124,6 +74,62 @@ namespace POS.Api.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ProcessPayment(ProcessPaymentRequest request)
+        {
+            var order = await _context.Set<Order>().Where(c => c.Id == request.OrderId).Include(o => o.OrderItems).ThenInclude(o => o.Item).Include(o => o.Discount).FirstOrDefaultAsync();
+
+            if (order is null)
+            {
+                return BadRequest();
+            }
+
+            var sum = order.Amount is null or 0 ? order.OrderItems.Sum(oi => oi.Amount * oi.Item.Price) : order.Amount ?? 0;
+
+            var total = sum * (1 + request.TaxRate / 100 - (order.Discount is null ? 0 : order.Discount.Amount / 100));
+
+            if (sum > request.Amount)
+            {
+                return BadRequest("Not enough funds");
+            }
+            
+            
+
+            var payment = new Payment()
+            {
+                Total = total,
+                Sum = sum,
+                AmountPaid = request.Amount,
+                Change = request.Type == PaymentType.Cash ? request.Amount - total : null,
+                Type = request.Type,
+                TaxRate = request.TaxRate,
+                Date = request.Date,
+                CardNumber = request.CardNumber,
+                Discount = order.Discount != null ? order.Discount.Amount : 0
+            };
+
+            _context.Add(payment);
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result == 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(new ProcessPaymentResponse()
+            {
+                Id = payment.Id,
+                Sum = payment.Sum,
+                AmountPaid = payment.AmountPaid,
+                Change = payment.Change,
+                TaxRate = payment.TaxRate,
+                Date = payment.Date,
+                Discount = payment.Discount,
+                Total = payment.Sum * (1 + payment.TaxRate / 100 - payment.Discount / 100)
+            });
         }
     }
 }
