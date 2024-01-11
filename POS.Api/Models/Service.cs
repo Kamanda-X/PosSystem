@@ -11,6 +11,9 @@ namespace POS.Api.Models
             TimeSlots = new HashSet<TimeSlot>();
         }
 
+        [MaxLength(100)]
+        public required string Name { get; set; }
+
         public Guid Id { get; init; }
 
         [ForeignKey("Employee")]
@@ -19,11 +22,9 @@ namespace POS.Api.Models
         public virtual Employee Employee { get; set; } = null!;
 
         [MaxLength(512)]
-        public string Description { get; set; } = string.Empty;
+        public required string Description { get; set; } = string.Empty;
 
-        public float Price { get; set; }
-
-        public virtual Reservation? Reservation { get; set; }
+        public required float Price { get; set; }
 
         public ICollection<TimeSlot> TimeSlots { get; set; }
     }
