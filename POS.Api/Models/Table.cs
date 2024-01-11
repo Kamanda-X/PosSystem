@@ -15,6 +15,10 @@
 
         public TableStatus Status { get; set; }
 
-        public virtual Reservation? Reservation { get; set; }
+        public Guid OrderId { get; set; }
+
+        public virtual Order Order { get; set; } = null!;
+
+        public virtual ICollection<Reservation> Reservations { get; set; }
     }
 }
