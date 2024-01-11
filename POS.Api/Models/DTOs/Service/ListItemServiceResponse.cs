@@ -1,0 +1,18 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace POS.Api.Models.DTOs.Service
+{
+    public class ListItemServiceResponse
+    {
+        public Guid Id { get; init; }
+
+        public string EmployeeId { get; set; } = null!;
+
+        public string Name { get; set; } = null!;
+
+        [MaxLength(512)]
+        public string Description { get; set; } = string.Empty;
+
+        public float Price { get; set; }
+    }
+}
