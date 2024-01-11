@@ -37,7 +37,18 @@ namespace POS.Api.Controllers
                 return BadRequest();
             }
 
-            return Ok(order);
+            var response = new OrderResponse
+            {   
+                Id = order.Id,
+                EmployeeId = order.EmployeeId,
+                DiscountId = order.DiscountId,
+                PaymentId = order.PaymentId,
+                CustomerId = order.CustomerId,
+                Status = order.Status,
+                Date = order.Date,
+            };
+
+            return Ok(response);
         }
 
         [HttpPut]
@@ -74,7 +85,7 @@ namespace POS.Api.Controllers
                 return BadRequest();
             }
 
-            var response = new OrderDto()
+            var response = new OrderResponse()
             {
                 Id = order.Id,
                 Amount = order.Amount,
@@ -92,7 +103,7 @@ namespace POS.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var orders = await _context.Set<Order>().Select(e => new OrderDto()
+            var orders = await _context.Set<Order>().Select(e => new OrderResponse()
             {
                 Id = e.Id,
                 Amount = e.Amount,
