@@ -5,6 +5,7 @@ using POS.Api.Models;
 using POS.Api.Models.DTOs.Order;
 using Microsoft.EntityFrameworkCore;
 using Azure.Core;
+using POS.Api.Models.DTOs.OrderItem;
 
 namespace POS.Api.Controllers
 {
@@ -51,11 +52,12 @@ namespace POS.Api.Controllers
 
             order.Status = request.Status;
             order.Date = request.Date;
+            order.Amount = order.Amount;
             order.CustomerId = request.CustomerId;
             order.DiscountId = request.DiscountId;
             order.PaymentId = request.PaymentId;
             order.EmployeeId = request.EmployeeId;
-            
+
 
             _context.Update(order);
             var result = await _context.SaveChangesAsync();
@@ -75,6 +77,7 @@ namespace POS.Api.Controllers
             var response = new OrderDto()
             {
                 Id = order.Id,
+                Amount = order.Amount,
                 EmployeeId = order.EmployeeId,
                 DiscountId = order.DiscountId,
                 PaymentId = order.PaymentId,
@@ -92,6 +95,7 @@ namespace POS.Api.Controllers
             var orders = await _context.Set<Order>().Select(e => new OrderDto()
             {
                 Id = e.Id,
+                Amount = e.Amount,
                 EmployeeId = e.EmployeeId,
                 DiscountId = e.DiscountId,
                 PaymentId = e.PaymentId,
@@ -114,6 +118,93 @@ namespace POS.Api.Controllers
             }
 
             _context.Remove(order);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("/api/[controller]/AddItem")]
+        public async Task<IActionResult> AddItem(CreateOrderItemDto request)
+        {
+            var existingOrderItem = await _context.Set<OrderItem>().Where(o => o.OrderId == request.OrderId && o.ItemId == request.ItemId).FirstOrDefaultAsync();
+
+            if (existingOrderItem is not null)
+            {
+                existingOrderItem.Amount += request.Amount;
+                _context.Update(existingOrderItem);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+
+            var orderItem = new OrderItem()
+            {
+                OrderId = request.OrderId,
+                ItemId = request.ItemId,
+                Amount = request.Amount,
+            };
+
+            _context.Add(orderItem);
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result == 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(orderItem);
+        }
+
+        [HttpPost("/api/[controller]/RemoveItem")]
+        public async Task<IActionResult> RemoveItem(Guid orderId, Guid itemId)
+        {
+            var existingOrderItem = await _context.Set<OrderItem>().Where(o => o.OrderId == orderId && o.ItemId == itemId).FirstOrDefaultAsync();
+
+            if (existingOrderItem is null)
+            {
+                return BadRequest();
+            }
+
+            _context.Set<OrderItem>().Remove(existingOrderItem);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("/api/[controller]/AddTip")]
+        public async Task<IActionResult> AddTip(AddTipRequest request)
+        {
+            var existingOrder = await _context.Set<Order>().Where(o => o.Id == request.OrderId).FirstOrDefaultAsync();
+
+            if (existingOrder is null || existingOrder.TipAmount != 0)
+            {
+                return BadRequest();
+            }
+
+            existingOrder.TipAmount = request.Amount;
+
+            _context.Set<Order>().Update(existingOrder);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("/api/[controller]/ApplyDiscount")]
+        public async Task<IActionResult> ApplyDiscount(ApplyDiscountRequest request)
+        {
+            var existingOrder = await _context.Set<Order>().Where(o => o.Id == request.OrderId).FirstOrDefaultAsync();
+
+            if (existingOrder is null || existingOrder.TipAmount != 0)
+            {
+                return BadRequest();
+            }
+
+            existingOrder.DiscountId = request.DiscountId;
+
+            _context.Set<Order>().Update(existingOrder);
 
             await _context.SaveChangesAsync();
 

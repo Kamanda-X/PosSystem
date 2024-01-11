@@ -90,6 +90,7 @@ namespace POS.Api.Controllers
             var services = await _context.Set<Service>().Select(e => new ServiceResponse()
             {
                 Id = e.Id,
+                Name = e.Name,
                 EmployeeId = e.EmployeeId,
                 Description = e.Description,
                 Price = e.Price,

@@ -36,6 +36,15 @@ namespace POS.Api.Controllers
                 return Ok(reservation);
             } else
             {
+                var existingReservation = await _context.Set<Reservation>().Where(r => r.TimeSlotId == request.TimeSlotId
+                && r.Start.Year == request.Start.Year
+                && r.Start.Month == request.Start.Month
+                && r.Start.Day == request.Start.Day).FirstOrDefaultAsync();
+
+                if (existingReservation is not null)
+                {
+                    return BadRequest("Time slot is already occupied");
+                }
                 var reservation = new Reservation()
                 {
                     TimeSlotId = request.TimeSlotId,
@@ -123,6 +132,31 @@ namespace POS.Api.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("/api/[controller]/FufillOrder")]
+        public async Task<IActionResult> FufillReservation(Guid id)
+        {
+            var reservation = await _context.Set<Reservation>().Where(c => c.Id == id).Include(r => r.TimeSlot).ThenInclude(t => t.Service).FirstOrDefaultAsync();
+
+            if (reservation == null || reservation.TimeSlotId == null)
+            {
+                return BadRequest();
+            }
+
+            var order = new Order
+            {
+                EmployeeId = reservation.TimeSlot.Service.EmployeeId,
+                ReservationId = reservation.Id,
+                Amount = reservation.TimeSlot.Service.Price,
+                Date = DateTime.Now,
+                Status = OrderStatus.Ongoing,
+            };
+
+            _context.Add(order);
+            await _context.SaveChangesAsync();
+
+            return Ok(order.Id);
         }
     }
 }

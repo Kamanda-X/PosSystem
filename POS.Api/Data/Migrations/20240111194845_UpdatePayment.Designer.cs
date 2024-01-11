@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using POS.Api.Data;
 
@@ -11,9 +12,11 @@ using POS.Api.Data;
 namespace POS.Api.Data.Migrations
 {
     [DbContext(typeof(PosDbContext))]
-    partial class PosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240111194845_UpdatePayment")]
+    partial class UpdatePayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -205,6 +208,9 @@ namespace POS.Api.Data.Migrations
 
                     b.Property<DateTimeOffset>("StartDate")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -403,28 +409,16 @@ namespace POS.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<float>("AmountPaid")
+                    b.Property<float>("Amount")
                         .HasColumnType("real");
 
                     b.Property<int?>("CardNumber")
                         .HasColumnType("int");
 
-                    b.Property<float?>("Change")
-                        .HasColumnType("real");
-
                     b.Property<DateTimeOffset>("Date")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<float>("Discount")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Sum")
-                        .HasColumnType("real");
-
                     b.Property<float>("TaxRate")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Total")
                         .HasColumnType("real");
 
                     b.Property<int>("Type")

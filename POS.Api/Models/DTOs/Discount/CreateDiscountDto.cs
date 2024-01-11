@@ -9,7 +9,5 @@
         public DateTimeOffset EndDate { get; set; }
 
         public string Description { get; set; } = null!;
-
-        public DiscountStatus Status { get; set; }
     }
 }

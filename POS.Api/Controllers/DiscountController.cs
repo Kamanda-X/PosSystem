@@ -23,7 +23,6 @@ namespace POS.Api.Controllers
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
                 Description = request.Description,
-                Status = request.Status,
             };
 
             _context.Add(discount);
@@ -47,7 +46,6 @@ namespace POS.Api.Controllers
             discount.EndDate = request.EndDate;
             discount.Description = request.Description;
             discount.Amount = request.Amount;
-            discount.Status = request.Status;
 
 
             _context.Update(discount);
@@ -72,7 +70,6 @@ namespace POS.Api.Controllers
                 StartDate = disocunt.StartDate,
                 EndDate = disocunt.EndDate,
                 Description = disocunt.Description,
-                Status = disocunt.Status,
             };
 
             return Ok(response);
@@ -88,7 +85,6 @@ namespace POS.Api.Controllers
                 StartDate = e.StartDate,
                 EndDate = e.EndDate,
                 Description = e.Description,
-                Status = e.Status,
             }).ToListAsync();
 
             return Ok(discounts);

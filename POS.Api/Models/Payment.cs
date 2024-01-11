@@ -14,11 +14,19 @@ namespace POS.Api.Models
 
         public PaymentType Type { get; set; }
 
-        public float Amount { get; set; }
+        public float Total { get; set; }
 
+        public float Sum { get; set; }
+
+        public float AmountPaid { get; set; }
+
+        public float? Change { get; set; }
+
+        // percent
         public float TaxRate { get; set; }
 
-        public float TipAmount { get; set; }
+        // percent
+        public float Discount { get; set; }
 
         public DateTimeOffset Date { get; set; }
 
