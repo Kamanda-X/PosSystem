@@ -68,6 +68,11 @@ namespace POS.Api.Controllers
         {
             var employee = await _userManager.FindByIdAsync(id.ToString());
 
+            if (employee is null)
+            {
+                return BadRequest();
+            }
+
             var response = new EmployeeDto()
             {
                 FirstName = employee.FirstName,
@@ -84,6 +89,8 @@ namespace POS.Api.Controllers
         {
             var employees = await _context.Set<Employee>().Select(e => new EmployeeDto()
             {
+                Id = Guid.Parse(e.Id),
+                UserName = e.UserName,
                 FirstName = e.FirstName,
                 LastName = e.LastName,
                 Email = e.Email,

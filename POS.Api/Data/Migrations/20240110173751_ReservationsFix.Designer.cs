@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using POS.Api.Data;
 
@@ -11,9 +12,11 @@ using POS.Api.Data;
 namespace POS.Api.Data.Migrations
 {
     [DbContext(typeof(PosDbContext))]
-    partial class PosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240110173751_ReservationsFix")]
+    partial class ReservationsFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -429,23 +432,15 @@ namespace POS.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ReservedDate")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime>("Start")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("TableId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("TimeSlotId")
+                    b.Property<Guid>("TableId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TableId");
-
-                    b.HasIndex("TimeSlotId");
 
                     b.ToTable("Reservation");
                 });
@@ -470,26 +465,6 @@ namespace POS.Api.Data.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("Table");
-                });
-
-            modelBuilder.Entity("POS.Api.Models.TimeSlot", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<TimeOnly>("End")
-                        .HasColumnType("time");
-
-                    b.Property<Guid>("ServiceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<TimeOnly>("Start")
-                        .HasColumnType("time");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TimeSlot");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -612,15 +587,11 @@ namespace POS.Api.Data.Migrations
                 {
                     b.HasOne("POS.Api.Models.Table", "Table")
                         .WithMany("Reservations")
-                        .HasForeignKey("TableId");
-
-                    b.HasOne("POS.Api.Models.TimeSlot", "TimeSlot")
-                        .WithMany("Reservations")
-                        .HasForeignKey("TimeSlotId");
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Table");
-
-                    b.Navigation("TimeSlot");
                 });
 
             modelBuilder.Entity("POS.Api.Models.Table", b =>
@@ -671,11 +642,6 @@ namespace POS.Api.Data.Migrations
                 });
 
             modelBuilder.Entity("POS.Api.Models.Table", b =>
-                {
-                    b.Navigation("Reservations");
-                });
-
-            modelBuilder.Entity("POS.Api.Models.TimeSlot", b =>
                 {
                     b.Navigation("Reservations");
                 });

@@ -3,17 +3,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace POS.Api.Models
 {
-    [PrimaryKey(nameof(TableId), nameof(OrderId))]
+    [PrimaryKey(nameof(Id))]
     public class Reservation
     {
-        public Guid TableId { get; set; }
+        public Guid Id { get; set; }
+
+        public Guid? TableId { get; set; }
+
+        public Guid? TimeSlotId { get; set; }
+
+        public virtual TimeSlot TimeSlot { get; set; } = null!;
 
         public virtual Table Table { get; set; } = null!;
 
-        public Guid OrderId { get; set; }
+        public DateTime Start { get; set; }
 
-        public virtual Order Order { get; set; } = null!;
-
-        public DateTimeOffset ReservedDate { get; set; }
+        public DateTime End { get; set; }
     }
 }
